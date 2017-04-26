@@ -54,3 +54,10 @@ Réponse : `201 Created`
 Erreurs :
 - `400 Bad Request`: Paramètres incorrects
 - `404 Not Found`: Sondage non-trouvé
+
+`DELETE /polls/:id`
+
+Réponse : `204 No Content`
+
+Erreurs : 
+- `404 Page Not Found`: Sondage non trouvé

@@ -1,6 +1,8 @@
 const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
+const settings = require('./settings.js')
+const authMiddleware = require('./authMiddleware')
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
@@ -55,7 +57,8 @@ app.get('/polls/:id', function(req, res){
 })
 
 //route de création de sondage 
-app.post('/polls', function (req, res) {
+app.post('/polls', authMiddleware, function (req, res) {
+
 	const { question, answers } = req.body;
 	/*  	
 	2 équivalents pour calculer l'id max
@@ -123,12 +126,19 @@ app.post('/polls/:id/votes', function(req, res){
 	
 })
 
-app.delete('/polls/:id/delete', function(req, res){
+app.delete('/polls/:id', authMiddleware, function(req, res){
 	// On récupère le sondage par son id
 	const id = parseInt(req.params.id)
 	const index = polls.findIndex(p => p.id === id)
+	//Si l'index n'est pas trouvé alors erreur 404
+	if(index === -1){
+		res.sendStatus(404)
+	}
+	//Sinon on retire le sondage du tableau polls
+	else{
 	polls.splice(index, 1)
-	res.send(polls)
+	res.sendStatus(204)
+	}
 })
 
 app.listen(3000, () =>{

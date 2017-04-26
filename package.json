@@ -10,8 +10,10 @@
   "author": "Amanda Mellerin",
   "license": "Beerware",
   "dependencies": {
+    "base-64": "^0.1.0",
     "body-parser": "^1.17.1",
     "express": "^4.15.2",
+    "js-base64": "^2.1.9",
     "nodemon": "^1.11.0"
   }
 }

@@ -3,7 +3,6 @@ const app = express()
 const bodyParser = require('body-parser')
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
-const jsonParser = bodyParser.json();
 
 app.get('/', function (req, res){
 	res.send('Hello world !')
@@ -43,6 +42,7 @@ app.get('/polls/:id', function(req, res){
 	const id = parseInt(req.params.id)
 	//récupération de l'id du tableau correspondant à l'id passé en url
 	const poll = polls.find(p => p.id === id)
+	console.log(poll)
 	//si find ne trouve rien on renvoie une erreur 404
 	if(typeof(poll) === 'undefined'){
 		//res.status(404).end() équivalent avec rien dans le body
@@ -55,7 +55,7 @@ app.get('/polls/:id', function(req, res){
 })
 
 //route de création de sondage 
-app.post('/polls', jsonParser, function (req, res) {
+app.post('/polls', function (req, res) {
 	const { question, answers } = req.body;
 	/*  	
 	2 équivalents pour calculer l'id max
@@ -97,9 +97,39 @@ app.post('/polls', jsonParser, function (req, res) {
 
 //route de vote pour la réponse d'un sondage
 app.post('/polls/:id/votes', function(req, res){
-
+    // On récupère le sondage par son id
+	const id = parseInt(req.params.id)
+	const poll = polls.find(p => p.id === id)
+	const answer = parseInt(req.body.answer)
+    // On envoie une erreur si le sondage n'existe pas
+	if (typeof(poll) === 'undefined'){
+		return res.sendStatus(404);
+	}
+	if(!(answer in poll.answers)){
+		return res.sendStatus(400);
+	}
+	else{
+	    // On récupère l'index de la réponse votée depuis le body
+	    // et on vérifie sa validité
+	    for(let i = 0 ; i <= poll.answers.length ; i++){
+	    	if (i === answer){
+	    // On ajoute l'index de la réponse à la liste des votes du sondage
+	    		poll.votes.push(answer);
+	    	}
+	    }
+	    // On renvoie la nouvelle liste des votes
+	    res.status(201).send(poll.votes);
+	}
+	
 })
 
+app.delete('/polls/:id/delete', function(req, res){
+	// On récupère le sondage par son id
+	const id = parseInt(req.params.id)
+	const index = polls.findIndex(p => p.id === id)
+	polls.splice(index, 1)
+	res.send(polls)
+})
 
 app.listen(3000, () =>{
 	console.log('Listening on port 3000')
